@@ -37,11 +37,11 @@ class Client {
     return await this.call<TR>(url)
   }
 
-  public async post<TR = any>(
+  public async post<T = object, TR = any>(
     url: string,
-    data?: object
+    data?: T
   ): Promise<IWatchtowerRes<TR>> {
-    return await this.call<TR>(url, data, "POST")
+    return await this.call<TR>(url, data as object | undefined, "POST")
   }
 
   public getToken = async (): Promise<string> =>
@@ -107,16 +107,22 @@ export interface IRootRes {
   }
 }
 
+export interface IMonReq {
+  content: Base64
+  name: string
+  schedule: ScheduleMin
+}
+
 export interface IMonRes {
   links: {
     runs: string
     self: string
   }
   id: string
-  content: string
+  content: Base64
   created: string
   name: string
-  schedule: number
+  schedule: ScheduleMin
 }
 
 export interface IMonsRes {
@@ -156,6 +162,7 @@ export interface IWatchtowerRes<T> {
 }
 
 type Token = Readonly<{ access_token: string }>
+type Base64 = string
 
 interface ICommentable {
   comment?: string
