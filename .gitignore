@@ -1,0 +1,10 @@
+.DS_Store
+src/*.js
+src/*.map
+
+.idea/
+.serverless/
+.vscode/
+.webpack/
+node_modules/
+pkg/

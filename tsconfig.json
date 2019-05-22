@@ -1,0 +1,10 @@
+{
+  "extends": "./node_modules/skripts/base-tsconfig.json",
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "target": "es2018"
+  },
+  "include": ["src"]
+}
