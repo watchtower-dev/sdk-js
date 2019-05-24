@@ -33,6 +33,10 @@ class Client {
     return await this.get<IRootRes>("https://api.watchtower.dev/")
   }
 
+  public async del<TR = any>(url: string): Promise<IWatchtowerRes<TR>> {
+    return await this.call<TR>(url, "DELETE")
+  }
+
   public async get<TR = any>(url: string): Promise<IWatchtowerRes<TR>> {
     return await this.call<TR>(url)
   }
@@ -41,7 +45,7 @@ class Client {
     url: string,
     data?: T
   ): Promise<IWatchtowerRes<TR>> {
-    return await this.call<TR>(url, data as object | undefined, "POST")
+    return await this.call<TR>(url, "POST", data as object | undefined)
   }
 
   public getToken = async (): Promise<string> =>
@@ -60,8 +64,8 @@ class Client {
 
   private async call<TR>(
     url: string,
-    data?: object,
-    method?: Method
+    method?: Method,
+    data?: object
   ): Promise<IWatchtowerRes<TR>> {
     if (!this.token) await this.getToken()
     const r = await logError<AP<TR>>(() =>
@@ -80,11 +84,10 @@ class Client {
   }
 }
 
-export const toBase64 = (input: string) =>
-  Buffer.from(input).toString("base64")
+export const toBase64 = (input: string) => Buffer.from(input).toString("base64")
 
 export const fromBase64 = (base64: string) =>
-  Buffer.from(base64, 'base64').toString('utf8')
+  Buffer.from(base64, "base64").toString("utf8")
 
 async function logError<TR>(fn: () => TR): Promise<TR> {
   try {

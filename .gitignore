@@ -1,6 +1,7 @@
 .DS_Store
 src/*.js
 src/*.map
+examples/*.map
 
 .idea/
 .serverless/
@@ -8,3 +9,4 @@ src/*.map
 .webpack/
 node_modules/
 pkg/
+typeScript.js

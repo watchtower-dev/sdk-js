@@ -5,12 +5,12 @@ cache:
 notifications:
   email: false
 node_js:
-  - '12'
-  - '11'
-  - '10'
-  - '8'
+  - "12"
+  - "11"
+  - "10"
+  - "8"
 before_install:
-  - '[[ $(node -v) =~ ^v9.*$ ]] || npm install -g npm@latest'
+  - "[[ $(node -v) =~ ^v9.*$ ]] || npm install -g npm@latest"
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/

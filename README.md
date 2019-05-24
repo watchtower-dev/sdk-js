@@ -26,10 +26,8 @@ create(process.env.WATCHTOWER_ID, process.env.WATCHTOWER_SEC).then(
     // => {"links":{"self":"https://api.watchtower.dev/monitors"},"items":[]}
 
     // Create a monitor
-    const monitor = (await client.post(
-      client.root.links.monitors,
-      {
-        content: toBase64(`
+    const monitor = (await client.post(client.root.links.monitors, {
+      content: toBase64(`
 version: 1
 checks:
   getExample:
@@ -38,10 +36,9 @@ checks:
     assertions:
       - jsonPath: response.status
         equal: 200`),
-        name: "Example Monitor",
-        schedule: 60
-      }
-    )).data
+      name: "Example Monitor",
+      schedule: 60
+    })).data
     log(monitor)
     // => {"links":{"self":"https://api.watchtower.dev/monitors"},"items":[{"links":{"runs":"https://api.watchtower.dev/monitors/xxx/runs","self":"https://api.watchtower.dev/monitors/xxx"},"content":"xxx...","created":"2020-01-01T00:00:00.000Z","id":"xxx","name":"Example Monitor","schedule":60}]}
 
@@ -57,10 +54,13 @@ checks:
     // Or just one, which includes detailed response data
     log((await client.get(run.links.self)).data)
     // => {"links":{"self":"https://api.watchtower.dev/monitors/xxx/runs/xxx"},"created":"2020-01-01T00:00:00.000Z","id":"xxx","monitorId":"xxx","result":"passed","checks":[{"assertions":[{"jsonPath":"response.status","equal":200}],"entry":{"request":{"url":"https://www.example.com","method":"GET"},"response":{"content":{"text":"<!doctype html>\n<html>...</html>\n"},"headers":{"content-type":"text/html; charset=UTF-8"},"status":200,"statusText":"OK"},"startedDateTime":"2020-01-01T00:00:00.000Z","time":133.968674},"name":"getExample"}]}
+
+    // Delete the monitor
+    log((await client.del(monitor.links.self)).data)
   }
 )
 
-const log = (obj) => console.log(`${JSON.stringify(obj)}\n`)
+const log = obj => console.log(`${JSON.stringify(obj)}\n`)
 ```
 
 Or with TypeScript:
@@ -118,6 +118,9 @@ checks:
     // Or just one, which includes detailed response data
     log((await client.get<IRunByIdRes>(run.links.self)).data)
     // => {"links":{"self":"https://api.watchtower.dev/monitors/xxx/runs/xxx"},"created":"2020-01-01T00:00:00.000Z","id":"xxx","monitorId":"xxx","result":"passed","checks":[{"assertions":[{"jsonPath":"response.status","equal":200}],"entry":{"request":{"url":"https://www.example.com","method":"GET"},"response":{"content":{"text":"<!doctype html>\n<html>...</html>\n"},"headers":{"content-type":"text/html; charset=UTF-8"},"status":200,"statusText":"OK"},"startedDateTime":"2020-01-01T00:00:00.000Z","time":133.968674},"name":"getExample"}]}
+
+    // Delete the monitor
+    log((await client.del<IMonRes>(monitor.links.self)).data)
   }
 )
 
