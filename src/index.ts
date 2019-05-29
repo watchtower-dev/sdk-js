@@ -1,23 +1,27 @@
 import axios, { AxiosInstance, AxiosPromise as AP } from "axios"
 
-export const create = async (id: string, secret: string) => {
-  const c = new Client(id, secret)
-  c.token = await c.getToken()
+export const create = async ({
+  id,
+  secret,
+  token
+}: {
+  id?: string
+  secret?: string
+  token?: string
+}) => {
+  if (!token && id && secret) token = await getToken(id, secret)
+  const c = new Client(token as string)
   c.root = (await c.getRoot()).data
   return c
 }
 
 class Client {
   public root: IRootRes
-  public token: string
-  private id: string
-  private secret: string
+  public token = ""
   private api: AxiosInstance
 
-  constructor(id: string, secret: string) {
-    this.id = id
-    this.secret = secret
-    this.token = ""
+  constructor(token: string) {
+    this.token = token
     this.root = {} as IRootRes
     this.api = axios.create({
       headers: {
@@ -48,26 +52,11 @@ class Client {
     return await this.call<TR>(url, "POST", data as object | undefined)
   }
 
-  public getToken = async (): Promise<string> =>
-    (await logError<AP<Token>>(() =>
-      axios.post<Token>(
-        "https://watchtower-test.auth0.com/oauth/token",
-        {
-          audience: "https://api.watchtower.dev/",
-          client_id: this.id,
-          client_secret: this.secret,
-          grant_type: "client_credentials"
-        },
-        { headers: { "Content-Type": "application/json" } }
-      )
-    )).data.access_token
-
   private async call<TR>(
     url: string,
     method?: Method,
     data?: object
   ): Promise<IWatchtowerRes<TR>> {
-    if (!this.token) await this.getToken()
     const r = await logError<AP<TR>>(() =>
       this.api.request<TR>({
         data,
@@ -83,6 +72,20 @@ class Client {
     }
   }
 }
+
+const getToken = async (id: string, secret: string): Promise<string> =>
+  (await logError<AP<Token>>(() =>
+    axios.post<Token>(
+      "https://watchtower-test.auth0.com/oauth/token",
+      {
+        audience: "https://api.watchtower.dev/",
+        client_id: id,
+        client_secret: secret,
+        grant_type: "client_credentials"
+      },
+      { headers: { "Content-Type": "application/json" } }
+    )
+  )).data.access_token
 
 export const toBase64 = (input: string) => Buffer.from(input).toString("base64")
 

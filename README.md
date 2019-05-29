@@ -15,7 +15,10 @@ Example usage in JavaScript:
 ```js
 const { create, toBase64 } = require("@watchtower-dev/sdk-js")
 
-create(process.env.WATCHTOWER_ID, process.env.WATCHTOWER_SEC).then(
+create({
+  id: process.env.WATCHTOWER_ID,
+  secret: process.env.WATCHTOWER_SEC
+}).then(
   async client => {
     // `create` fetches an access token and GETs the root resource
     log(client.root)
@@ -76,7 +79,10 @@ import {
   toBase64
 } from "@watchtower-dev/sdk-js"
 
-create(process.env.WATCHTOWER_ID || "", process.env.WATCHTOWER_SEC || "").then(
+create({
+  id: process.env.WATCHTOWER_ID,
+  secret: process.env.WATCHTOWER_SEC
+}).then(
   async client => {
     // `create` fetches an access token and GETs the root resource
     log(client.root)
