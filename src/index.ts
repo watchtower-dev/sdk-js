@@ -1,21 +1,13 @@
 import axios, { AxiosInstance, AxiosPromise as AP } from "axios"
 
-export const create = async ({
-  id,
-  secret,
-  token
-}: {
-  id?: string
-  secret?: string
-  token?: string
-}) => {
-  if (!token && id && secret) token = await getToken(id, secret)
-  const c = new Client(token as string)
+export const create = async ({id, secret}: {id: string; secret: string}) => {
+  const tok =  await getToken(id, secret)
+  const c = new Client(tok as string)
   c.root = (await c.getRoot()).data
   return c
 }
 
-class Client {
+export class Client {
   public root: IRootRes
   public token = ""
   private api: AxiosInstance
@@ -26,7 +18,6 @@ class Client {
     this.api = axios.create({
       headers: {
         accept: "application/json",
-        "accept-encoding": " gzip, deflate",
         "content-type": "application/json"
       },
       timeout: 10000
@@ -102,7 +93,7 @@ async function logError<TR>(fn: () => TR): Promise<TR> {
   }
 }
 
-export type ScheduleMin = 1 | 5 | 15 | 30 | 60 | 1440
+export type ScheduleMin = 0 | 1 | 5 | 15 | 30 | 60 | 1440
 
 export type Result = "passed" | "failed" | "pending"
 
@@ -136,6 +127,11 @@ export interface IMonsRes {
   items: IMonRes[]
 }
 
+export interface INameValue extends ICommentable {
+  name: string
+  value: string
+}
+
 export interface IRunRes {
   links: { self: string }
   id: string
@@ -146,6 +142,16 @@ export interface IRunRes {
 export interface IRunsRes {
   links: { self: string }
   items: IRunRes[]
+}
+
+export interface IAssert {
+  jsonPath: string
+  equal?: boolean | number | object | string | null
+  error?: string
+  greaterThan?: number
+  lessThan?: number
+  regex?: string
+  type?: string[]
 }
 
 export interface ICheckRes {
@@ -172,11 +178,6 @@ type Base64 = string
 
 interface ICommentable {
   comment?: string
-}
-
-interface INameValue extends ICommentable {
-  name: string
-  value: string
 }
 
 interface ICookie extends INameValue {
@@ -223,7 +224,6 @@ interface IResponse extends ICommentable {
 }
 
 type Method =
-  | "CONNECT"
   | "DELETE"
   | "GET"
   | "HEAD"
@@ -231,7 +231,6 @@ type Method =
   | "PATCH"
   | "POST"
   | "PUT"
-  | "TRACE"
 
 interface IPostData extends ICommentable {
   mimeType?: string
@@ -261,14 +260,4 @@ interface IEntry extends ICommentable {
   startedDateTime: string
   time: number
   timings?: ITimings
-}
-
-interface IAssert {
-  jsonPath: string
-  equal?: boolean | number | object | string | null
-  error?: string
-  greaterThan?: number
-  lessThan?: number
-  regex?: string
-  type?: string[]
 }

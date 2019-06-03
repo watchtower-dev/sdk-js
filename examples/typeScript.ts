@@ -25,7 +25,6 @@ create({
     client.root.links.monitors,
     {
       content: toBase64(`
-version: 1
 checks:
   getExample:
     request:

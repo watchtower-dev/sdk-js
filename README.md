@@ -31,7 +31,6 @@ create({
     // Create a monitor
     const monitor = (await client.post(client.root.links.monitors, {
       content: toBase64(`
-version: 1
 checks:
   getExample:
     request:
@@ -97,7 +96,6 @@ create({
       client.root.links.monitors,
       {
         content: toBase64(`
-version: 1
 checks:
   getExample:
     request:
