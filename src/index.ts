@@ -1,7 +1,13 @@
 import axios, { AxiosInstance, AxiosPromise as AP } from "axios"
 
-export const create = async ({id, secret}: {id: string; secret: string}) => {
-  const tok =  await getToken(id, secret)
+export const create = async ({
+  id,
+  secret
+}: {
+  id: string
+  secret: string
+}) => {
+  const tok = await getToken(id, secret)
   const c = new Client(tok as string)
   c.root = (await c.getRoot()).data
   return c
@@ -223,14 +229,7 @@ interface IResponse extends ICommentable {
   statusText: string
 }
 
-type Method =
-  | "DELETE"
-  | "GET"
-  | "HEAD"
-  | "OPTIONS"
-  | "PATCH"
-  | "POST"
-  | "PUT"
+type Method = "DELETE" | "GET" | "HEAD" | "OPTIONS" | "PATCH" | "POST" | "PUT"
 
 interface IPostData extends ICommentable {
   mimeType?: string
