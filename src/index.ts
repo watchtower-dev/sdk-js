@@ -6,7 +6,7 @@ export const create = async ({
 }: {
   id: string
   secret: string
-}) => {
+}): Promise<Client> => {
   const tok = await getToken(id, secret)
   const c = new Client(tok as string)
   c.root = (await c.getRoot()).data
@@ -14,13 +14,13 @@ export const create = async ({
 }
 
 export class Client {
-  public root: IRootRes
+  public root: RootRes
   public token = ""
   private api: AxiosInstance
 
   constructor(token: string) {
     this.token = token
-    this.root = {} as IRootRes
+    this.root = {} as RootRes
     this.api = axios.create({
       headers: {
         accept: "application/json",
@@ -30,22 +30,22 @@ export class Client {
     })
   }
 
-  public async getRoot(): Promise<IWatchtowerRes<IRootRes>> {
-    return await this.get<IRootRes>("https://api.watchtower.dev/")
+  public async getRoot(): Promise<WatchtowerRes<RootRes>> {
+    return await this.get<RootRes>("https://api.watchtower.dev/")
   }
 
-  public async del<TR = any>(url: string): Promise<IWatchtowerRes<TR>> {
+  public async del<TR = unknown>(url: string): Promise<WatchtowerRes<TR>> {
     return await this.call<TR>(url, "DELETE")
   }
 
-  public async get<TR = any>(url: string): Promise<IWatchtowerRes<TR>> {
+  public async get<TR = unknown>(url: string): Promise<WatchtowerRes<TR>> {
     return await this.call<TR>(url)
   }
 
-  public async post<T = object, TR = any>(
+  public async post<T = object, TR = unknown>(
     url: string,
     data?: T
-  ): Promise<IWatchtowerRes<TR>> {
+  ): Promise<WatchtowerRes<TR>> {
     return await this.call<TR>(url, "POST", data as object | undefined)
   }
 
@@ -53,7 +53,7 @@ export class Client {
     url: string,
     method?: Method,
     data?: object
-  ): Promise<IWatchtowerRes<TR>> {
+  ): Promise<WatchtowerRes<TR>> {
     const r = await logError<AP<TR>>(() =>
       this.api.request<TR>({
         data,
@@ -71,22 +71,28 @@ export class Client {
 }
 
 const getToken = async (id: string, secret: string): Promise<string> =>
-  (await logError<AP<Token>>(() =>
-    axios.post<Token>(
-      "https://watchtower-test.auth0.com/oauth/token",
-      {
-        audience: "https://api.watchtower.dev/",
-        client_id: id,
-        client_secret: secret,
-        grant_type: "client_credentials"
-      },
-      { headers: { "Content-Type": "application/json" } }
+  (
+    await logError<AP<Token>>(() =>
+      axios.post<Token>(
+        "https://watchtower-test.auth0.com/oauth/token",
+        {
+          audience: "https://api.watchtower.dev/",
+          // eslint-disable-next-line
+          client_id: id,
+          // eslint-disable-next-line
+          client_secret: secret,
+          // eslint-disable-next-line
+          grant_type: "client_credentials"
+        },
+        { headers: { "Content-Type": "application/json" } }
+      )
     )
-  )).data.access_token
+  ).data.access_token
 
-export const toBase64 = (input: string) => Buffer.from(input).toString("base64")
+export const toBase64 = (input: string): string =>
+  Buffer.from(input).toString("base64")
 
-export const fromBase64 = (base64: string) =>
+export const fromBase64 = (base64: string): string =>
   Buffer.from(base64, "base64").toString("utf8")
 
 async function logError<TR>(fn: () => TR): Promise<TR> {
@@ -103,20 +109,20 @@ export type ScheduleMin = 0 | 1 | 5 | 15 | 30 | 60 | 1440
 
 export type Result = "passed" | "failed" | "pending"
 
-export interface IRootRes {
+export interface RootRes {
   links: {
     account: string
     monitors: string
   }
 }
 
-export interface IMonReq {
+export interface MonReq {
   content: Base64
   name: string
   schedule: ScheduleMin
 }
 
-export interface IMonRes {
+export interface MonRes {
   links: {
     runs: string
     self: string
@@ -128,29 +134,29 @@ export interface IMonRes {
   schedule: ScheduleMin
 }
 
-export interface IMonsRes {
+export interface MonsRes {
   links: { self: string }
-  items: IMonRes[]
+  items: MonRes[]
 }
 
-export interface INameValue extends ICommentable {
+export interface NameValue extends Commentable {
   name: string
   value: string
 }
 
-export interface IRunRes {
+export interface RunRes {
   links: { self: string }
   id: string
   created: string
   result: Result
 }
 
-export interface IRunsRes {
+export interface RunsRes {
   links: { self: string }
-  items: IRunRes[]
+  items: RunRes[]
 }
 
-export interface IAssert {
+export interface Assert {
   jsonPath: string
   equal?: boolean | number | object | string | null
   error?: string
@@ -160,33 +166,33 @@ export interface IAssert {
   type?: string[]
 }
 
-export interface ICheckRes {
-  entry: IEntry
+export interface CheckRes {
+  entry: Entry
   error?: string
   name: string
-  assertions: IAssert[]
+  assertions: Assert[]
 }
 
-export interface IRunByIdRes {
-  checks: ICheckRes[]
+export interface RunByIdRes {
+  checks: CheckRes[]
   created: string
   result: Result
 }
 
-export interface IWatchtowerRes<T> {
+export interface WatchtowerRes<T> {
   data: T
-  headers: any
+  headers: unknown
   status: number
 }
 
 type Token = Readonly<{ access_token: string }>
 type Base64 = string
 
-interface ICommentable {
+interface Commentable {
   comment?: string
 }
 
-interface ICookie extends INameValue {
+interface Cookie extends NameValue {
   domain?: string
   expires?: string
   httpOnly?: boolean
@@ -194,12 +200,12 @@ interface ICookie extends INameValue {
   secure?: boolean
 }
 
-interface ICache extends ICommentable {
+interface Cache extends Commentable {
   afterRequest?: object
   beforeRequest?: object
 }
 
-interface ITimings extends ICommentable {
+interface Timings extends Commentable {
   blocked?: number
   connect?: number
   dns?: number
@@ -209,7 +215,7 @@ interface ITimings extends ICommentable {
   wait: number
 }
 
-interface IContent extends ICommentable {
+interface Content extends Commentable {
   compression?: number
   encoding?: string
   mimeType?: string
@@ -217,11 +223,11 @@ interface IContent extends ICommentable {
   text?: string
 }
 
-interface IResponse extends ICommentable {
+interface Response extends Commentable {
   bodySize?: number
-  content: IContent
-  cookies?: ICookie[]
-  headers: INameValue[]
+  content: Content
+  cookies?: Cookie[]
+  headers: NameValue[]
   headersSize?: number
   httpVersion?: string
   redirectURL?: string
@@ -231,32 +237,32 @@ interface IResponse extends ICommentable {
 
 type Method = "DELETE" | "GET" | "HEAD" | "OPTIONS" | "PATCH" | "POST" | "PUT"
 
-interface IPostData extends ICommentable {
+interface PostData extends Commentable {
   mimeType?: string
-  params: INameValue[]
+  params: NameValue[]
   text?: object | string
 }
 
-interface IRequest extends ICommentable {
+interface Request extends Commentable {
   url: string
   bodySize?: number
-  cookies?: INameValue[]
-  headers?: INameValue[]
+  cookies?: NameValue[]
+  headers?: NameValue[]
   headersSize?: number
   httpVersion?: string
   method?: Method
-  postData?: IPostData
-  queryString?: INameValue[]
+  postData?: PostData
+  queryString?: NameValue[]
 }
 
-interface IEntry extends ICommentable {
-  cache?: ICache
+interface Entry extends Commentable {
+  cache?: Cache
   connection?: string
   pageref?: string
-  request: IRequest
-  response: IResponse
+  request: Request
+  response: Response
   serverIPAddress?: string
   startedDateTime: string
   time: number
-  timings?: ITimings
+  timings?: Timings
 }

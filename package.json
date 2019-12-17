@@ -13,27 +13,26 @@
   },
   "scripts": {
     "build": "pack build",
-    "clean": "skripts clean src --pattern '*.js'; skripts clean src examples --pattern '*.map'",
-    "format": "skripts prettier",
-    "jest": "ENVIRONMENT=test skripts jest",
-    "lint": "skripts tslint",
+    "clean": "rm -rf coverage",
+    "format": "skripts format",
+    "lint": "skripts lint",
     "publish": "pack publish",
     "start": "tsc && node examples/typeScript.js",
-    "test": "npm run lint && npm run jest",
+    "test": "skripts test --passWithNoTests",
     "version": "npm run build"
   },
   "dependencies": {
     "axios": "^0.19.0"
   },
   "devDependencies": {
-    "@pika/pack": "^0.4.0",
-    "@pika/plugin-build-node": "^0.4.0",
-    "@pika/plugin-build-web": "^0.4.0",
-    "@pika/plugin-ts-standard-pkg": "^0.4.0",
-    "husky": "^3.0.0",
-    "skripts": "0.0.19",
-    "tslint": "^5.18.0",
-    "typescript": "^3.5.3"
+    "@pika/pack": "^0.5.0",
+    "@pika/plugin-build-node": "^0.8.1",
+    "@pika/plugin-build-web": "^0.8.1",
+    "@pika/plugin-ts-standard-pkg": "^0.8.1",
+    "husky": "^3.1.0",
+    "skripts": "0.4.2",
+    "tslint": "^5.20.1",
+    "typescript": "^3.7.3"
   },
   "@pika/pack": {
     "pipeline": [
@@ -50,7 +49,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "skripts lint-staged"
+      "pre-commit": "skripts pre-commit"
     }
   }
 }
